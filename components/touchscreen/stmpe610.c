@@ -52,7 +52,7 @@ void touch_init(spi_host_device_t host, int cs)
 	esp_err_t ret;
 	
 	spi_device_interface_config_t devcfg={
-        .clock_speed_hz=SPI_MASTER_FREQ_10M,//Clock out at 10 MHz
+        .clock_speed_hz=SPI_MASTER_FREQ_10M/100,//Clock out at 10 MHz
         .mode=0,                            //SPI mode 0
         .spics_io_num=cs,					//CS pin
         .queue_size=2,                      //We want to be able to queue 7 transactions at a time
@@ -84,7 +84,12 @@ void touch_init(spi_host_device_t host, int cs)
     touch_write(STMPE610_INT_CTRL, 0x00);         // Level interrupt, disable interrupts
 }
 
-int touch_detect()
+uint16_t touch_detect()
+{
+	return *(uint16_t *)touch_read(0x93,2);
+}
+ 
+int touch_fetch()
 {
 	if (!(*touch_read(STMPE610_TSC_CTRL,1) & 0x80)) return 0;
 
